@@ -1,25 +1,29 @@
 require glibc.inc
-
-LIC_FILES_CHKSUM = "file://LICENSES;md5=cfc0ed77a9f62fa62eded042ebe31d72 \
-      file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
-      file://posix/rxspencer/COPYRIGHT;md5=dc5485bb394a13b2332ec1c785f5d83a \
-      file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
+require glibc-version.inc
+require glibc-centos.inc
 
 DEPENDS += "gperf-native bison-native make-native"
 
-SRCREV ?= "044c96f0d5595aeb0bb4e79355081c5a7f4faca5"
+NATIVESDKFIXES ?= ""
+NATIVESDKFIXES_class-nativesdk = "\
+           file://0001-nativesdk-glibc-Look-for-host-system-ld.so.cache-as-.patch \
+           file://0002-nativesdk-glibc-Fix-buffer-overrun-with-a-relocated-.patch \
+           file://0003-nativesdk-glibc-Raise-the-size-of-arrays-containing-.patch \
+           file://0004-nativesdk-glibc-Allow-64-bit-atomics-for-x86.patch \
+           file://0005-nativesdk-glibc-Make-relocatable-install-for-locales.patch \
+"
 
-SRCBRANCH ?= "release/${PV}/master"
+SRC_URI[sha256sum] = "b1900051afad76f7a4f73e71413df4826dce085ef8ddb785a945b66d7d513082"
 
-GLIBC_GIT_URI ?= "git://sourceware.org/git/glibc.git"
-UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>\d+\.\d+(\.(?!90)\d+)*)"
-
-SRC_URI = "${GLIBC_GIT_URI};branch=${SRCBRANCH};name=glibc \
+SRC_URI =  "${GLIBC_FTP_URL}${CENTOS_SRC} \
            file://etc/ld.so.conf \
            file://generate-supported.mk \
            file://makedbs.sh \
            \
+           ${CENTOS_PATCHES} \
+           \
            ${NATIVESDKFIXES} \
+           \
            file://0006-fsl-e500-e5500-e6500-603e-fsqrt-implementation.patch \
            file://0007-readlib-Add-OECORE_KNOWN_INTERPRETER_NAMES-to-known-.patch \
            file://0008-ppc-sqrt-Fix-undefined-reference-to-__sqrt_finite.patch \
@@ -43,27 +47,11 @@ SRC_URI = "${GLIBC_GIT_URI};branch=${SRCBRANCH};name=glibc \
            file://0028-bits-siginfo-consts.h-enum-definition-for-TRAP_HWBKP.patch \
            file://0029-localedef-add-to-archive-uses-a-hard-coded-locale-pa.patch \
            file://0030-intl-Emit-no-lines-in-bison-generated-files.patch \
-           file://0031-sysdeps-ieee754-prevent-maybe-uninitialized-errors-w.patch \
-           file://0032-sysdeps-ieee754-soft-fp-ignore-maybe-uninitialized-w.patch \
-           file://0033-locale-prevent-maybe-uninitialized-errors-with-Os-BZ.patch \
            file://0034-inject-file-assembly-directives.patch \
-           file://CVE-2019-9169.patch \
-           file://CVE-2016-10739.patch \
-           file://CVE-2018-19591.patch \
-           file://CVE-2019-6488.patch \
-           file://CVE-2019-7309.patch \
-"
-
-NATIVESDKFIXES ?= ""
-NATIVESDKFIXES_class-nativesdk = "\
-           file://0001-nativesdk-glibc-Look-for-host-system-ld.so.cache-as-.patch \
-           file://0002-nativesdk-glibc-Fix-buffer-overrun-with-a-relocated-.patch \
-           file://0003-nativesdk-glibc-Raise-the-size-of-arrays-containing-.patch \
-           file://0004-nativesdk-glibc-Allow-64-bit-atomics-for-x86.patch \
-           file://0005-nativesdk-glibc-Make-relocatable-install-for-locales.patch \
-"
-
-S = "${WORKDIR}/git"
+           file://0001-Add-support-for-GCC-9-attribute-copy.patch \
+           file://0031-Fix-build-with-GCC-10-when-long-double-double.patch \
+           "
+S = "${WORKDIR}/glibc-2.28"
 B = "${WORKDIR}/build-${TARGET_SYS}"
 
 PACKAGES_DYNAMIC = ""
@@ -73,11 +61,6 @@ BUILD_CPPFLAGS = "-I${STAGING_INCDIR_NATIVE}"
 TARGET_CPPFLAGS = "-I${STAGING_DIR_TARGET}${includedir}"
 
 GLIBC_BROKEN_LOCALES = ""
-#
-# We will skip parsing glibc when target system C library selection is not glibc
-# this helps in easing out parsing for non-glibc system libraries
-#
-COMPATIBLE_HOST_libc-musl_class-target = "null"
 
 GLIBCPIE ??= ""
 
@@ -92,12 +75,13 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
                 --enable-stack-protector=strong \
                 --enable-stackguard-randomization \
                 --disable-crypt \
+                --with-default-link \
+                --enable-nscd \
+                ${@bb.utils.contains_any('SELECTED_OPTIMIZATION', '-O0 -Og', '--disable-werror', '', d)} \
                 ${GLIBCPIE} \
                 ${GLIBC_EXTRA_OECONF}"
 
 EXTRA_OECONF += "${@get_libc_fpu_setting(bb, d)}"
-EXTRA_OECONF += "${@bb.utils.contains('DISTRO_FEATURES', 'libc-inet-anl', '--enable-nscd', '--disable-nscd', d)}"
-
 
 do_patch_append() {
     bb.build.exec_func('do_fix_readlib_c', d)
@@ -117,20 +101,18 @@ do_configure () {
         CPPFLAGS="" oe_runconf
 }
 
+LDFLAGS += "-fuse-ld=bfd"
 do_compile () {
-	# -Wl,-rpath-link <staging>/lib in LDFLAGS can cause breakage if another glibc is in staging
-	unset LDFLAGS
 	base_do_compile
 	echo "Adjust ldd script"
 	if [ -n "${RTLDLIST}" ]
 	then
 		prevrtld=`cat ${B}/elf/ldd | grep "^RTLDLIST=" | sed 's#^RTLDLIST="\?\([^"]*\)"\?$#\1#'`
-		if [ "${prevrtld}" != "${RTLDLIST}" ]
-		then
-			sed -i ${B}/elf/ldd -e "s#^RTLDLIST=.*\$#RTLDLIST=\"${prevrtld} ${RTLDLIST}\"#"
-		fi
+		# remove duplicate entries
+		newrtld=`echo $(printf '%s\n' ${prevrtld} ${RTLDLIST} | LC_ALL=C sort -u)`
+		echo "ldd \"${prevrtld} ${RTLDLIST}\" -> \"${newrtld}\""
+		sed -i ${B}/elf/ldd -e "s#^RTLDLIST=.*\$#RTLDLIST=\"${newrtld}\"#"
 	fi
-
 }
 
 require glibc-package.inc
