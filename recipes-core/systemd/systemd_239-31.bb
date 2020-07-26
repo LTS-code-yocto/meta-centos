@@ -15,23 +15,14 @@ inherit useradd pkgconfig meson perlnative update-rc.d update-alternatives qemu 
 # that we don't build both udev and systemd in world builds.
 REQUIRED_DISTRO_FEATURES = "systemd"
 
-SRC_URI = "${CENTOS_SRC};downloadfilename=systemd-239.tar.gz \
+SRC_URI_append = " \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
            file://init \
            \
            ${CENTOS_PATCHES} \
            \
-           file://0001-binfmt-Don-t-install-dependency-links-at-install-tim.patch \
-           file://0002-use-lnr-wrapper-instead-of-looking-for-relative-opti.patch \
-           file://0003-implment-systemd-sysv-install-for-OE.patch \
-           file://0005-Make-root-s-home-directory-configurable.patch \
-           file://0006-remove-nobody-user-group-checking.patch \
            "
-
-SRC_URI[sha256sum] = "8a11b1b07d620f4c06a16e95bba4dd2a97e90efdf2a5ba47ed0a935085787a14"
-
-S = "${WORKDIR}/systemd-239"
 
 # Workaround undefined reference to `__stack_chk_fail_local' on qemux86 and qemuppc for musl
 SRC_URI_append_libc-musl_qemux86 = " file://0001-Remove-fstack-protector-flags-to-workaround-musl-bui.patch"
