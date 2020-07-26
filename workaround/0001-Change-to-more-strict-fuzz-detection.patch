@@ -1,0 +1,25 @@
+From b5f0e147698b9734168d5c21870b23a1bde65e80 Mon Sep 17 00:00:00 2001
+From: Naoto Yamaguchi <i33399_YAMAGUCHI@aisin-aw.co.jp>
+Date: Mon, 27 Jul 2020 00:31:05 +0900
+Subject: [PATCH] Change to more strict fuzz detection
+
+---
+ meta/lib/oe/patch.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/lib/oe/patch.py b/meta/lib/oe/patch.py
+index 2b1eee1003..f9934a2888 100644
+--- a/meta/lib/oe/patch.py
++++ b/meta/lib/oe/patch.py
+@@ -41,7 +41,7 @@ def runcmd(args, dir = None):
+         (exitstatus, output) = subprocess.getstatusoutput(cmd)
+         if exitstatus != 0:
+             raise CmdError(cmd, exitstatus >> 8, output)
+-        if " fuzz " in output:
++        if " fuzz " in output and "Hunk " in output:
+             # Drop patch fuzz info with header and footer to log file so
+             # insane.bbclass can handle to throw error/warning
+             bb.note("--- Patch fuzz start ---\n%s\n--- Patch fuzz end ---" % format(output))
+-- 
+2.17.1
+
