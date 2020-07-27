@@ -1,7 +1,7 @@
-From 5199ae5dec9b8a9c9e20477d5090f1732735fbe2 Mon Sep 17 00:00:00 2001
+From b94a415f3a167eb4600dd84f73c2d9fad9cd4543 Mon Sep 17 00:00:00 2001
 From: Chen Qi <Qi.Chen@windriver.com>
 Date: Thu, 28 Jun 2018 09:38:12 +0800
-Subject: [PATCH 6/9] remove nobody user/group checking
+Subject: [PATCH 06/12] remove nobody user/group checking
 
 Upstream-Status: Inappropriate [OE Specific]
 
@@ -11,10 +11,10 @@ Signed-off-by: Chen Qi <Qi.Chen@windriver.com>
  1 file changed, 37 deletions(-)
 
 diff --git a/meson.build b/meson.build
-index 323146fe1..3bb087fef 100644
+index baf1cb739a..40c56a7ecf 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -681,43 +681,6 @@ substs.set('containeruidbasemax', container_uid_base_max)
+@@ -688,43 +688,6 @@ substs.set('containeruidbasemax', container_uid_base_max)
  nobody_user = get_option('nobody-user')
  nobody_group = get_option('nobody-group')
  
@@ -59,5 +59,5 @@ index 323146fe1..3bb087fef 100644
          warning('\n' +
                  'The configured user name "@0@" and group name "@0@" of the nobody user/group are not equivalent.\n'.format(nobody_user, nobody_group) +
 -- 
-2.11.0
+2.17.1
 

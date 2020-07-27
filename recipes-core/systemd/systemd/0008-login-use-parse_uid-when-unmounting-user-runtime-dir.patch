@@ -1,7 +1,8 @@
-From 86d18f3b09ec984ef3732567af992adb2dc77a8a Mon Sep 17 00:00:00 2001
+From 5f274e40cef73209ac9e71f14ed3ccd5ce195f01 Mon Sep 17 00:00:00 2001
 From: Yu Watanabe <watanabe.yu+github@gmail.com>
 Date: Mon, 9 Jul 2018 14:05:20 +0900
-Subject: [PATCH] login: use parse_uid() when unmounting user runtime directory
+Subject: [PATCH 08/12] login: use parse_uid() when unmounting user runtime
+ directory
 
 When unmounting user runtime directory, only UID is necessary,
 and the corresponding user may not exist anymore.
@@ -12,11 +13,11 @@ Fixes #9541.
 
 Upstream-Status: Backport
 ---
- src/login/user-runtime-dir.c | 57 ++++++++++++++++++++++++++++----------------
+ src/login/user-runtime-dir.c | 57 +++++++++++++++++++++++-------------
  1 file changed, 36 insertions(+), 21 deletions(-)
 
 diff --git a/src/login/user-runtime-dir.c b/src/login/user-runtime-dir.c
-index 1bb26c99e..de4061c75 100644
+index 1bb26c99e4..de4061c75e 100644
 --- a/src/login/user-runtime-dir.c
 +++ b/src/login/user-runtime-dir.c
 @@ -111,8 +111,22 @@ static int user_remove_runtime_path(const char *runtime_path) {
@@ -106,5 +107,5 @@ index 1bb26c99e..de4061c75 100644
                  assert_not_reached("Unknown verb!");
  
 -- 
-2.11.0
+2.17.1
 

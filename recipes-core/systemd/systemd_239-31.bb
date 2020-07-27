@@ -22,7 +22,65 @@ SRC_URI_append = " \
            \
            ${CENTOS_PATCHES} \
            \
+           file://0001-binfmt-Don-t-install-dependency-links-at-install-tim.patch \
+           file://0002-use-lnr-wrapper-instead-of-looking-for-relative-opti.patch \
+           file://0003-implment-systemd-sysv-install-for-OE.patch \
+           file://0004-rules-whitelist-hd-devices.patch \
+           file://0005-Make-root-s-home-directory-configurable.patch \
+           file://0006-remove-nobody-user-group-checking.patch \
+           file://0007-rules-watch-metadata-changes-in-ide-devices.patch \
+           file://0008-login-use-parse_uid-when-unmounting-user-runtime-dir.patch \
+           file://0009-sd-bus-make-BUS_DEFAULT_TIMEOUT-configurable.patch \
+           file://0010-Backport-patch-to-fix-systemd-build-failure-on-x32.patch \
+           file://0011-sysctl-Don-t-pass-null-directive-argument-to-s.patch \
+           file://0012-core-Fix-use-after-free-case-in-load_from_path.patch \
            "
+
+# Disable original patches:
+# 0008-Do-not-enable-nss-tests-if-nss-systemd-is-not-enable.patch is same change of 
+# centos 0156-meson-allow-building-resolved-and-machined-without-n.patch
+# 
+# 0009-nss-mymachines-Build-conditionally-when-ENABLE_MYHOS.patch is conflict to 
+# centos 0156-meson-allow-building-resolved-and-machined-without-n.patch
+# should change to PACKAGECONFIG[myhostname] and add to PACKAGECONFIG[nss-mymachines] 
+# note: PACKAGECONFIG[resolved] should change nss-resolve?
+# 
+# 0022-build-sys-Detect-whether-struct-statx-is-defined-in-.patch is same patch of 
+# centos 0001-build-sys-Detect-whether-struct-statx-is-defined-in-.patch
+# 
+# 0023-resolvconf-fixes-for-the-compatibility-interface.patch dono't need 
+# 
+# 0001-core-when-deserializing-state-always-use-read_line-L.patch is same patch of 
+# centos 0061-core-when-deserializing-state-always-use-read_line-L.patch
+# 
+# 0001-chown-recursive-let-s-rework-the-recursive-logic-to-.patch is same patch of 
+# centos 0040-chown-recursive-let-s-rework-the-recursive-logic-to-.patch
+# 
+# 0001-dhcp6-make-sure-we-have-enough-space-for-the-DHCP6-o.patch is same patch of 
+# centos 0034-dhcp6-make-sure-we-have-enough-space-for-the-DHCP6-o.patch
+# 
+# 0001-Revert-sysctl.d-request-ECN-on-both-in-and-outgoing-.patch is same patch of 
+# centos 0044-Revert-sysctl.d-request-ECN-on-both-in-and-outgoing-.patch
+# 
+# 0001-meson-rename-Ddebug-to-Ddebug-extra.patch is same patch of 
+# centos 0057-meson-rename-Ddebug-to-Ddebug-extra.patch
+# 
+# 0024-journald-do-not-store-the-iovec-entry-for-process-co.patch is same patch of 
+# centos 0070-journald-do-not-store-the-iovec-entry-for-process-co.patch
+# 
+# 0025-journald-set-a-limit-on-the-number-of-fields.patch may fixd by 
+# centos 0080-journald-set-a-limit-on-the-number-of-fields-1k.patch
+# and 0085-journal-remote-set-a-limit-on-the-number-of-fields-i.patch
+#
+# 0026-journal-fix-out-of-bounds-read-CVE-2018-16866.patch is same patch of 
+# centos 0079-journal-fix-syslog_parse_identifier.patch
+# 
+# CVE-2019-6454.patch is same patch of 
+# centos 0107-Refuse-dbus-message-paths-longer-than-BUS_PATH_SIZE_.patch
+# 
+# sd-bus-if-we-receive-an-invalid-dbus-message-ignore-.patch is same patch of 
+# centos 0109-sd-bus-if-we-receive-an-invalid-dbus-message-ignore-.patch
+#
 
 # Workaround undefined reference to `__stack_chk_fail_local' on qemux86 and qemuppc for musl
 SRC_URI_append_libc-musl_qemux86 = " file://0001-Remove-fstack-protector-flags-to-workaround-musl-bui.patch"
@@ -115,9 +173,10 @@ PACKAGECONFIG[lz4] = "-Dlz4=true,-Dlz4=false,lz4"
 PACKAGECONFIG[machined] = "-Dmachined=true,-Dmachined=false"
 PACKAGECONFIG[manpages] = "-Dman=true,-Dman=false,libxslt-native xmlto-native docbook-xml-dtd4-native docbook-xsl-stylesheets-native"
 PACKAGECONFIG[microhttpd] = "-Dmicrohttpd=true,-Dmicrohttpd=false,libmicrohttpd"
-PACKAGECONFIG[myhostname] = "-Dmyhostname=true,-Dmyhostname=false"
+PACKAGECONFIG[myhostname] = "-Dnss-myhostname=true,-Dnss-myhostname=false,,libnss-myhostname"
 PACKAGECONFIG[networkd] = "-Dnetworkd=true,-Dnetworkd=false"
 PACKAGECONFIG[nss] = "-Dnss-systemd=true,-Dnss-systemd=false"
+PACKAGECONFIG[nss-mymachines] = "-Dnss-mymachines=true,-Dnss-mymachines=false"
 PACKAGECONFIG[pam] = "-Dpam=true,-Dpam=false,libpam,${PAM_PLUGINS}"
 PACKAGECONFIG[polkit] = "-Dpolkit=true,-Dpolkit=false"
 PACKAGECONFIG[portabled] = "-Dportabled=true,-Dportabled=false"

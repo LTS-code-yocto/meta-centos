@@ -1,4 +1,7 @@
-Backport patch to fix systemd build failure on x32.
+From 9be04053c501a79980252c39293384f0d72d492e Mon Sep 17 00:00:00 2001
+From: Naoto Yamaguchi <i33399_YAMAGUCHI@aisin-aw.co.jp>
+Date: Tue, 28 Jul 2020 02:18:50 +0900
+Subject: [PATCH 10/12] Backport patch to fix systemd build failure on x32.
 
 Upstream-Status: Backport [https://github.com/systemd/systemd/commit/75ca162]
 
@@ -19,7 +22,7 @@ Fixes #9387.
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/timesync/timesyncd-manager.c b/src/timesync/timesyncd-manager.c
-index 2b731af9e..404a2b189 100644
+index 2b731af9e3..404a2b1894 100644
 --- a/src/timesync/timesyncd-manager.c
 +++ b/src/timesync/timesyncd-manager.c
 @@ -604,7 +604,7 @@ static int manager_receive_response(sd_event_source *source, int fd, uint32_t re
@@ -32,7 +35,7 @@ index 2b731af9e..404a2b189 100644
                    spike ? " (ignored)" : "");
  
 diff --git a/src/timesync/timesyncd-manager.h b/src/timesync/timesyncd-manager.h
-index d8d97cc1e..18347416d 100644
+index d8d97cc1ee..18347416d1 100644
 --- a/src/timesync/timesyncd-manager.h
 +++ b/src/timesync/timesyncd-manager.h
 @@ -79,7 +79,7 @@ struct Manager {
@@ -45,5 +48,5 @@ index d8d97cc1e..18347416d 100644
          /* watch for time changes */
          sd_event_source *event_clock_watch;
 -- 
-2.17.0
+2.17.1
 
