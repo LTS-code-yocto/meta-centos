@@ -34,6 +34,8 @@ SRC_URI_append = " \
            file://0010-Backport-patch-to-fix-systemd-build-failure-on-x32.patch \
            file://0011-sysctl-Don-t-pass-null-directive-argument-to-s.patch \
            file://0012-core-Fix-use-after-free-case-in-load_from_path.patch \
+           \
+           file://0001-Fix-build-error-caused-by-0325-core-expose-SUID-SGID.patch \
            "
 
 # Disable original patches:

@@ -1,0 +1,26 @@
+From 7ed6e1f7336f5c012e67c6b6c4e856ae3dc73918 Mon Sep 17 00:00:00 2001
+From: Naoto YAMAGUCHI <i33399_YAMAGUCHI@aisin-aw.co.jp>
+Date: Tue, 28 Jul 2020 13:36:11 +0900
+Subject: [PATCH] Fix build error caused by
+ 0325-core-expose-SUID-SGID-restriction-as-new-unit-settin.patch
+
+---
+ src/core/load-fragment-gperf.gperf.m4 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/load-fragment-gperf.gperf.m4 b/src/core/load-fragment-gperf.gperf.m4
+index 161c5a2c82..20b89993d2 100644
+--- a/src/core/load-fragment-gperf.gperf.m4
++++ b/src/core/load-fragment-gperf.gperf.m4
+@@ -85,7 +85,7 @@ $1.SystemCallErrorNumber,        config_parse_warn_compat,           DISABLED_CO
+ $1.MemoryDenyWriteExecute,       config_parse_warn_compat,           DISABLED_CONFIGURATION,        0
+ $1.RestrictNamespaces,           config_parse_warn_compat,           DISABLED_CONFIGURATION,        0
+ $1.RestrictRealtime,             config_parse_warn_compat,           DISABLED_CONFIGURATION,        0
+-$1.RestrictSUIDSGID,             config_parse_warn_compat,           DISABLED_CONFIGURATION         0
++$1.RestrictSUIDSGID,             config_parse_warn_compat,           DISABLED_CONFIGURATION,        0
+ $1.RestrictAddressFamilies,      config_parse_warn_compat,           DISABLED_CONFIGURATION,        0
+ $1.LockPersonality,              config_parse_warn_compat,           DISABLED_CONFIGURATION,        0')
+ $1.LimitCPU,                     config_parse_rlimit,                RLIMIT_CPU,                    offsetof($1, exec_context.rlimit)
+-- 
+2.17.1
+
