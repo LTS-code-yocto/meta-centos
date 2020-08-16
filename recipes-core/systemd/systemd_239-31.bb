@@ -34,8 +34,6 @@ SRC_URI_append = " \
            file://0010-Backport-patch-to-fix-systemd-build-failure-on-x32.patch \
            file://0011-sysctl-Don-t-pass-null-directive-argument-to-s.patch \
            file://0012-core-Fix-use-after-free-case-in-load_from_path.patch \
-           \
-           file://0001-Fix-build-error-caused-by-0325-core-expose-SUID-SGID.patch \
            "
 
 # Disable original patches:
@@ -124,6 +122,8 @@ PACKAGECONFIG ??= " \
     utmp \
     vconsole \
     xz \
+    \
+    seccomp \
 "
 
 PACKAGECONFIG_remove_libc-musl = " \
@@ -211,7 +211,7 @@ rootprefix ?= "${root_prefix}"
 rootlibdir ?= "${base_libdir}"
 rootlibexecdir = "${rootprefix}/lib"
 
-# This links udev statically with systemd helper library.
+# This links  statically with systemd helper library.
 # Otherwise udev package would depend on systemd package (which has the needed shared library),
 # and always pull it into images.
 EXTRA_OEMESON += "-Dlink-udev-shared=false"
@@ -599,6 +599,7 @@ FILES_udev += "${base_sbindir}/udevd \
                ${rootlibexecdir}/systemd/systemd-udevd \
                ${rootlibexecdir}/udev/accelerometer \
                ${rootlibexecdir}/udev/ata_id \
+               ${rootlibexecdir}/udev/fido_id \
                ${rootlibexecdir}/udev/cdrom_id \
                ${rootlibexecdir}/udev/collect \
                ${rootlibexecdir}/udev/findkeyboards \
